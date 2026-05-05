@@ -1,6 +1,15 @@
-# Smart Schedule Generic - Sistema de Agendamento para Barbearias
+# Smart Schedule - Sistema de Agendamento para Barbearias
 
 Um sistema completo de agendamento para barbearias com integração WhatsApp, painel administrativo e gerenciamento de barbeiros.
+
+## 📁 Estrutura do Projeto
+
+```
+smart-schedule-generic/
+├── backend/          # FastAPI + PostgreSQL
+├── frontend/         # React/TypeScript (em desenvolvimento)
+└── README.md
+```
 
 ## 🎯 Funcionalidades Principais
 
@@ -45,48 +54,85 @@ Um sistema completo de agendamento para barbearias com integração WhatsApp, pa
 - **Validação:** Pydantic
 - **Containerização:** Docker & Docker Compose
 
-## 📦 Instalação
+## 📦 Instalação Rápida
 
 ### Pré-requisitos
-- Docker e Docker Compose
-- Git
+- Docker + Docker Compose
+- (Opcional) Node.js 18+ para desenvolvimento
 
-### Passos
+### 1. Clone o repositório
 
-1. **Clone o repositório:**
 ```bash
 git clone https://github.com/Souzinhaa/smart-schedule-generic.git
 cd smart-schedule-generic
 ```
 
-2. **Configure as variáveis de ambiente:**
+### 2. Configure variáveis
+
 ```bash
 cp .env.example .env
+# Edite .env com suas configurações
 ```
 
-3. **Edite o arquivo `.env` com suas configurações:**
-```env
-DATABASE_URL=postgresql://user:password@postgres:5432/smart_schedule
-EVOLUTION_API_URL=https://api.evolution.com
-EVOLUTION_API_KEY=sua_chave_api_aqui
-SECRET_KEY=sua_chave_secreta_segura
-```
+### 3. Inicie com Docker
 
-4. **Inicie os containers:**
 ```bash
 docker-compose up --build
 ```
 
-5. **Acesse a API:**
-- API: http://localhost:8000
-- Documentação Swagger: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-- Health Check: http://localhost:8000/health
+### 4. Acesse
+
+- **App**: http://localhost (Nginx reverse proxy)
+- **API**: http://localhost/api
+- **Docs**: http://localhost/docs
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:8000
+
+## 🚀 Desenvolvimento Local
+
+### Backend (FastAPI)
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn app.main:app --reload
+```
+
+### Frontend (React + Vite)
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+## 📡 Deploy em VPS
+
+Ver [DEPLOY.md](DEPLOY.md) para instruções completas.
+
+Quick start:
+```bash
+./deploy.sh production
+```
+
+## 🔐 Segurança
+
+⚠️ **IMPORTANT:** Antes de ir para produção:
+- [ ] Gerar nova `SECRET_KEY`
+- [ ] Configurar `EVOLUTION_API_KEY` do WhatsApp
+- [ ] Gerar certificado SSL/TLS
+- [ ] Alterar credenciais de banco de dados
+- [ ] Revisar CORS em `backend/app/main.py`
 
 ## 📚 Principais Endpoints
 
 ### Autenticação
-- `POST /api/auth/login` - Login/Registro por WhatsApp
+- `POST /api/auth/login` - Iniciar login (envia código)
+- `POST /api/auth/verify-code` - Verificar código (retorna token)
 - `GET /api/auth/me` - Dados do usuário autenticado
 - `POST /api/auth/refresh-token` - Renovar token
 - `POST /api/auth/consent` - Registrar consentimento LGPD
@@ -122,27 +168,34 @@ docker-compose up --build
 ## 🗂️ Estrutura do Projeto
 
 ```
-skart-schedule-generic/
-├── app/
-│   ├── routes/
-│   │   ├── auth.py           # Autenticação
-│   │   ├── appointments.py   # Agendamentos
-│   │   ├── admin.py          # Admin
-│   │   ├── barber.py         # Barbeiro
-│   │   └── public.py         # Público
-│   ├── models.py             # Modelos SQLAlchemy
-│   ├── schemas.py            # Schemas Pydantic
-│   ├── auth.py               # JWT e permissões
-│   ├── whatsapp.py           # Evolution API
-│   ├── config.py             # Configurações
-│   ├── database.py           # Conexão BD
-│   ├── main.py               # Aplicação FastAPI
-│   └── __init__.py
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── .env.example
-├── .gitignore
+smart-schedule-generic/
+├── backend/
+│   ├── app/
+│   │   ├── routes/
+│   │   │   ├── auth.py           # Autenticação
+│   │   │   ├── appointments.py   # Agendamentos
+│   │   │   ├── admin.py          # Admin
+│   │   │   ├── barber.py         # Barbeiro
+│   │   │   └── public.py         # Público
+│   │   ├── models.py             # Modelos SQLAlchemy
+│   │   ├── schemas.py            # Schemas Pydantic
+│   │   ├── auth.py               # JWT e permissões
+│   │   ├── whatsapp.py           # Evolution API
+│   │   ├── config.py             # Configurações
+│   │   ├── database.py           # Conexão BD
+│   │   ├── main.py               # Aplicação FastAPI
+│   │   └── __init__.py
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── requirements.txt
+│   ├── .env.example
+│   ├── .gitignore
+│   └── TESTING.md
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── README.md
 └── README.md
 ```
 

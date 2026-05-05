@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: smart_schedule
       POSTGRES_PASSWORD: smart_schedule
       POSTGRES_DB: smart_schedule
+    ports:
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -15,58 +17,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - smart_network
 
-  backend:
-    build: ./backend
+  fastapi:
+    build: .
     container_name: smart_schedule_api
     environment:
       DATABASE_URL: postgresql://smart_schedule:smart_schedule@postgres:5432/smart_schedule
-      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-use-openssl-rand-hex-32}
+      SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
       EVOLUTION_API_URL: ${EVOLUTION_API_URL:-https://api.evolution.com}
       EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
       DEBUG: ${DEBUG:-False}
+    ports:
+      - '8000:8000'
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
       test: [ 'CMD-SHELL', 'curl -f http://localhost:8000/health || exit 1' ]
-      interval: 15s
+      interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 10s
-    networks:
-      - smart_network
-
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: /api
-    container_name: smart_schedule_web
-    depends_on:
-      backend:
-        condition: service_healthy
-    networks:
-      - smart_network
-
-  nginx:
-    image: nginx:alpine
-    container_name: smart_schedule_nginx
-    ports:
-      - '80:80'
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - backend
-      - frontend
-    networks:
-      - smart_network
 
 volumes:
   postgres_data:
-
-networks:
-  smart_network:
-    driver: bridge
