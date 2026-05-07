@@ -36,7 +36,8 @@ def root():
         "message": "Smart Schedule API",
         "docs": "/docs",
         "redoc": "/redoc",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "status": "online"
     }
 
 if __name__ == "__main__":
