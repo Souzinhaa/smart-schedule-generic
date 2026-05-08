@@ -371,10 +371,17 @@ export default function App() {
     }
   };
 
-  const handleAuthSuccess = () => {
-    const userData = JSON.parse(localStorage.getItem('user') || '{}');
-    setUser(userData);
+  const handleAuthSuccess = async () => {
     setAuthenticated(true);
+    try {
+      const meRes = await authService.getMe();
+      const userData = { name: meRes.data.name, phone: meRes.data.whatsapp };
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+    } catch {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      setUser(userData);
+    }
     loadServices();
   };
 

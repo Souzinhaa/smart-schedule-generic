@@ -6,7 +6,7 @@ from app.models import UserRole, AppointmentStatus
 # Auth Schemas
 class LoginRequest(BaseModel):
     whatsapp: str = Field(..., min_length=10, max_length=20)
-    name: str = Field(..., min_length=2, max_length=255)
+    name: Optional[str] = Field(None, min_length=2, max_length=255)
 
 class VerifyCodeRequest(BaseModel):
     whatsapp: str = Field(..., min_length=10, max_length=20)
@@ -17,6 +17,7 @@ class LoginResponse(BaseModel):
     token_type: str = "bearer"
     expires_in: Optional[int] = None
     requires_code_verification: bool = False
+    requires_name: bool = False
     message: Optional[str] = None
 
 class Token(BaseModel):

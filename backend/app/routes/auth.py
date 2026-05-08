@@ -14,20 +14,20 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.whatsapp == request.whatsapp).first()
 
     if not user:
+        if not request.name:
+            return {"requires_name": True, "message": "Primeira vez? Informe seu nome para cadastro."}
         user = models.User(whatsapp=request.whatsapp, name=request.name, role=models.UserRole.client)
         db.add(user)
         db.commit()
         db.refresh(user)
     else:
-        # Reactivate deleted user and update name
         if not user.is_active:
             user.is_active = True
-        user.name = request.name
-        db.commit()
+            db.commit()
 
     return {
         "requires_code_verification": True,
-        "message": f"Código enviado para {request.whatsapp}. Use o código mockado: {MOCK_CODE}"
+        "message": f"Código: {MOCK_CODE}"
     }
 
 @router.post("/verify-code", response_model=schemas.Token)
