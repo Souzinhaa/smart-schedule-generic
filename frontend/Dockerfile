@@ -13,14 +13,14 @@ ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
 
-FROM node:18-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+RUN apk add --no-cache gettext
 
-RUN npm install -g serve
-
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 
 EXPOSE 3000
 
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# envsubst substitutes ${BACKEND_URL} and ${PORT}; nginx $vars are left intact
+CMD ["/bin/sh", "-c", "export PORT=${PORT:-3000}; export BACKEND_URL=${BACKEND_URL:-http://backend:8000}; envsubst '${BACKEND_URL} ${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

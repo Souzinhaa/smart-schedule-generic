@@ -362,9 +362,10 @@ export default function App() {
   const loadServices = async () => {
     try {
       const response = await publicService.getServices();
-      setServices(response.data);
+      setServices(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Erro ao carregar serviços:', error);
+      setServices([]);
     } finally {
       setLoading(false);
     }

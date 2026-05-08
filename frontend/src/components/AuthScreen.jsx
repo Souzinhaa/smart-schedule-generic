@@ -17,6 +17,7 @@ export default function AuthScreen({ onSuccess }) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [serverMessage, setServerMessage] = useState('');
 
   const formatPhone = (value) => {
     const digits = value.replace(/\D/g, '');
@@ -35,7 +36,8 @@ export default function AuthScreen({ onSuccess }) {
       if (cleanPhone.length !== 11) throw new Error('Telefone inválido');
 
       const fullPhone = `55${cleanPhone}`;
-      await authService.login(fullPhone, name);
+      const response = await authService.login(fullPhone, name);
+      setServerMessage(response.data?.message || '');
       setStep('code');
     } catch (err) {
       setError(err.response?.data?.detail || 'Erro ao fazer login');
@@ -191,6 +193,11 @@ export default function AuthScreen({ onSuccess }) {
           <>
             <div style={s.title}>Confirmar Código</div>
             <div style={s.subtitle}>Digite o código de 6 dígitos enviado para seu WhatsApp</div>
+            {serverMessage && (
+              <div style={{ fontSize: 12, color: GOLD, background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 8, padding: '8px 12px', marginBottom: 8 }}>
+                {serverMessage}
+              </div>
+            )}
             <form onSubmit={handleVerifyCode} style={s.form}>
               <div>
                 <div style={s.inputLabel}>Código de Verificação</div>
