@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql://smart_schedule:smart_schedule@postgres:5432/smart_schedule"
-    debug: bool = False
+    database_url: str = "sqlite:///./smart_schedule.db"
+    debug: bool = True
     secret_key: str = "your-super-secret-key-change-in-production"
     algorithm: str = "HS256"
     access_token_expire_days: int = 30

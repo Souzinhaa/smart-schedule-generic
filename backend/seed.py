@@ -5,6 +5,7 @@ Uso: python seed.py
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, r"C:\Users\Gabriel\AppData\Roaming\Python\Python314\site-packages")
 
 from app.database import SessionLocal, engine
 from app.models import Base, User, Barbershop, Barber, Service, UserRole
