@@ -19,8 +19,10 @@ RUN apk add --no-cache gettext
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 3000
 
-# envsubst substitutes ${BACKEND_URL} and ${PORT}; nginx $vars are left intact
-CMD ["/bin/sh", "-c", "export PORT=${PORT:-3000}; export BACKEND_URL=${BACKEND_URL:-http://backend:8000}; envsubst '${BACKEND_URL} ${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+ENTRYPOINT ["/entrypoint.sh"]
