@@ -43,4 +43,18 @@ export const publicService = {
   getHealth: () => api.get('/health'),
 };
 
+export const adminService = {
+  getDashboard: () => api.get('/admin/dashboard'),
+  getBarbershop: () => api.get('/admin/barbershop'),
+  updateBarbershop: (data) => api.put('/admin/barbershop', data),
+  getServices: () => api.get('/admin/services'),
+  createService: (data) => api.post('/admin/services', data),
+  updateService: (id, data) => api.put(`/admin/services/${id}`, data),
+  deleteService: (id) => api.delete(`/admin/services/${id}`),
+  getBarbers: () => api.get('/admin/barbers'),
+  addBarber: (data) => api.post('/admin/barbers', data),
+  deleteBarber: (id) => api.delete(`/admin/barbers/${id}`),
+  getAppointments: () => api.get('/admin/appointments'),
+};
+
 export default api;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Scissors, Clock, ChevronRight, ChevronLeft, Check, MessageCircle, MapPin, Phone, Star, Calendar, User, LogOut, Loader } from 'lucide-react';
 import AuthScreen from './components/AuthScreen';
+import AdminPanel from './components/AdminPanel';
 import { publicService, appointmentService, authService } from './services/api';
 
 const GOLD = '#C9A84C';
@@ -335,6 +336,7 @@ function StepSuccess({ service, barber, day, time, onHome }) {
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -351,9 +353,12 @@ export default function App() {
     const userData = localStorage.getItem('user');
 
     if (token && userData) {
+      const parsed = JSON.parse(userData);
       setAuthenticated(true);
-      setUser(JSON.parse(userData));
-      loadServices();
+      setUser(parsed);
+      setUserRole(parsed.role || null);
+      if (parsed.role !== 'admin') loadServices();
+      else setLoading(false);
     } else {
       setLoading(false);
     }
@@ -375,20 +380,25 @@ export default function App() {
     setAuthenticated(true);
     try {
       const meRes = await authService.getMe();
-      const userData = { name: meRes.data.name, phone: meRes.data.whatsapp };
+      const userData = { name: meRes.data.name, phone: meRes.data.whatsapp, role: meRes.data.role };
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
+      setUserRole(meRes.data.role);
+      if (meRes.data.role !== 'admin') loadServices();
+      else setLoading(false);
     } catch {
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       setUser(userData);
+      setUserRole(userData.role || null);
+      loadServices();
     }
-    loadServices();
   };
 
   const handleLogout = () => {
     authService.logout();
     setAuthenticated(false);
     setUser(null);
+    setUserRole(null);
     setScreen('home');
   };
 
@@ -414,6 +424,10 @@ export default function App() {
 
   if (!authenticated) {
     return <AuthScreen onSuccess={handleAuthSuccess} />;
+  }
+
+  if (userRole === 'admin') {
+    return <AdminPanel user={user} onLogout={handleLogout} />;
   }
 
   if (loading) {

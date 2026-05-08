@@ -242,6 +242,81 @@ def list_barbers(
 
     return barbers
 
+@router.put("/services/{service_id}", response_model=schemas.ServiceResponse)
+def update_service(
+    service_id: int,
+    update: schemas.ServiceUpdate,
+    current_user: models.User = Depends(auth.get_current_admin),
+    db: Session = Depends(get_db)
+):
+    barbershop = db.query(models.Barbershop).filter(
+        models.Barbershop.admin_id == current_user.id
+    ).first()
+    if not barbershop:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    service = db.query(models.Service).filter(
+        models.Service.id == service_id,
+        models.Service.barbershop_id == barbershop.id
+    ).first()
+    if not service:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+
+    if update.name is not None: service.name = update.name
+    if update.description is not None: service.description = update.description
+    if update.price is not None: service.price = update.price
+    if update.duration_minutes is not None: service.duration_minutes = update.duration_minutes
+
+    db.commit()
+    db.refresh(service)
+    return service
+
+@router.delete("/services/{service_id}")
+def delete_service(
+    service_id: int,
+    current_user: models.User = Depends(auth.get_current_admin),
+    db: Session = Depends(get_db)
+):
+    barbershop = db.query(models.Barbershop).filter(
+        models.Barbershop.admin_id == current_user.id
+    ).first()
+    if not barbershop:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    service = db.query(models.Service).filter(
+        models.Service.id == service_id,
+        models.Service.barbershop_id == barbershop.id
+    ).first()
+    if not service:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+
+    db.delete(service)
+    db.commit()
+    return {"message": "Service deleted"}
+
+@router.delete("/barbers/{barber_id}")
+def delete_barber(
+    barber_id: int,
+    current_user: models.User = Depends(auth.get_current_admin),
+    db: Session = Depends(get_db)
+):
+    barbershop = db.query(models.Barbershop).filter(
+        models.Barbershop.admin_id == current_user.id
+    ).first()
+    if not barbershop:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    barber = db.query(models.Barber).filter(
+        models.Barber.id == barber_id,
+        models.Barber.barbershop_id == barbershop.id
+    ).first()
+    if not barber:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Barber not found")
+
+    db.delete(barber)
+    db.commit()
+    return {"message": "Barber deleted"}
+
 @router.get("/appointments", response_model=List[schemas.AppointmentResponse])
 def list_all_appointments(
     current_user: models.User = Depends(auth.get_current_admin),
