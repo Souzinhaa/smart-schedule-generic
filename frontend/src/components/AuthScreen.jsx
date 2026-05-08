@@ -22,9 +22,13 @@ export default function AuthScreen({ onSuccess }) {
 
   const normalizePhone = (value) => {
     let digits = value.replace(/\D/g, '');
-    if (digits.length === 13 && digits.startsWith('55')) digits = digits.slice(2);
-    if (digits.length === 12 && digits.startsWith('55')) digits = digits.slice(2);
+    if (digits.length >= 12 && digits.startsWith('55')) digits = digits.slice(2);
     return digits;
+  };
+
+  const phoneIsValid = (value) => {
+    const digits = normalizePhone(value);
+    return digits.length === 11 && !digits.startsWith('55');
   };
 
   const formatPhone = (value) => {
@@ -217,7 +221,7 @@ export default function AuthScreen({ onSuccess }) {
                   autoFocus
                 />
               </div>
-              <button type="submit" style={s.button} disabled={loading || normalizePhone(phone).length !== 11}>
+              <button type="submit" style={s.button} disabled={loading || !phoneIsValid(phone)}>
                 {loading ? <Loader size={16} /> : <><MessageCircle size={16} />Continuar</>}
               </button>
             </form>
