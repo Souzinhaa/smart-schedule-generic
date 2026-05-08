@@ -20,8 +20,15 @@ export default function AuthScreen({ onSuccess }) {
   const [error, setError] = useState('');
   const [serverMessage, setServerMessage] = useState('');
 
+  const normalizePhone = (value) => {
+    let digits = value.replace(/\D/g, '');
+    if (digits.length === 13 && digits.startsWith('55')) digits = digits.slice(2);
+    if (digits.length === 12 && digits.startsWith('55')) digits = digits.slice(2);
+    return digits;
+  };
+
   const formatPhone = (value) => {
-    const digits = value.replace(/\D/g, '');
+    const digits = normalizePhone(value);
     if (digits.length <= 2) return digits;
     if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
@@ -41,7 +48,7 @@ export default function AuthScreen({ onSuccess }) {
     setLoading(true);
 
     try {
-      const cleanPhone = phone.replace(/\D/g, '');
+      const cleanPhone = normalizePhone(phone);
       if (cleanPhone.length !== 11) throw new Error('Telefone inválido. Use DDD + 9 dígitos.');
 
       const fp = `55${cleanPhone}`;
@@ -210,7 +217,7 @@ export default function AuthScreen({ onSuccess }) {
                   autoFocus
                 />
               </div>
-              <button type="submit" style={s.button} disabled={loading || phone.replace(/\D/g, '').length !== 11}>
+              <button type="submit" style={s.button} disabled={loading || normalizePhone(phone).length !== 11}>
                 {loading ? <Loader size={16} /> : <><MessageCircle size={16} />Continuar</>}
               </button>
             </form>
